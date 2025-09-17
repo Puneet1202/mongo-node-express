@@ -32,11 +32,11 @@ router.post('/register-data', registerValidator   ,async(req,res)=>{
         email:email,
         password :password
     })
-    res.send('data received');
+    res.render('create-success.ejs');
     console.log(req.body);
     
 })
-
+        
 
 //login data
 router.post('/login-data', loginValidation, async(req,res)=>{
@@ -55,7 +55,7 @@ router.post('/login-data', loginValidation, async(req,res)=>{
         return res.status(400).json({errors:[{msg: 'Invalid password'}]})
        }
         
-    res.send('login successful');
+    res.render('Dashboard.ejs', {username: user.name});
     console.log(req.body);
 })
 
