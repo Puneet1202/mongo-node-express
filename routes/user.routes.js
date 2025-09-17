@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const userModel = require('../models/user.model')
-const bcrypt = require('bcrypt');
+const { registerValidator } = require('../validator/User.validator');
+const { validationResult } = require('express-validator');
+
 
 //html file render
 router.get('/register',(req,res)=>{
@@ -9,17 +11,24 @@ router.get('/register',(req,res)=>{
 })
  
 //create data in database
-router.post('/register-data',async(req,res)=>{
+router.post('/register-data', registerValidator   ,async(req,res)=>{
+
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({ errors: errors.array() });
+    }
+    
 
     const {username,email,password} = req.body;
-    const hashPassword = await bcrypt.hash(password,10);
-
+    
      await userModel.create({
         name:username,
         email:email,
-        password :hashPassword
+        password :password
     })
     res.send('data received');
+    console.log(req.body);
+    
 })
 
 
@@ -37,19 +46,24 @@ router.get('/users',(req,res)=>{
 //update data in database
 router.get('/update-user', async(req,res)=>{
     await userModel.findOneAndUpdate({
-        name: "harshit"
+        name: "punit"
     },{
-        email : "harshit000@gmail.com"
+        email : "punit000@gmail.com"
     })
     res.send('data updated');
 })
 
 //delete data from database
-router.get('/delete-user',async(req,res)=>{
-    await userModel.findOneAndDelete({
-        name: "harshit"
+router.get('/delete-user/:name',async(req,res)=>{
+    
+    const userN = req.params.name;
+
+      await userModel.findOneAndDelete({
+        
+
+        name: userN
     })
-    res.send('data deleted');
+    res.send(`User ${userN} deleted`);
 })
 
 module.exports = router;
