@@ -2,13 +2,19 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../models/user.model')
 const { registerValidator } = require('../validator/User.validator');
+const {loginValidation} = require('../validator/User.validator');
 const { validationResult } = require('express-validator');
-
+const bcrypt = require("bcrypt");
 
 //html file render
 router.get('/register',(req,res)=>{
     res.render('register');
 })
+
+router.get('/login',(req,res)=>{
+    res.render('login');
+})
+
  
 //create data in database
 router.post('/register-data', registerValidator   ,async(req,res)=>{
@@ -29,6 +35,28 @@ router.post('/register-data', registerValidator   ,async(req,res)=>{
     res.send('data received');
     console.log(req.body);
     
+})
+
+
+//login data
+router.post('/login-data', loginValidation, async(req,res)=>{
+   const {username,password} = req.body;
+   const errors = validationResult(req);
+   if(!errors.isEmpty()){
+    return res.status(400).json({ errors: errors.array()})
+   }
+   const user = await userModel.findOne({name: username,});   
+
+   if(!user ){
+    return res.status(400).json({errors: [{msg: 'Invalid username'}]})
+   }
+       const isMatch =  await bcrypt.compare(password, user.password);
+       if(!isMatch){
+        return res.status(400).json({errors:[{msg: 'Invalid password'}]})
+       }
+        
+    res.send('login successful');
+    console.log(req.body);
 })
 
 

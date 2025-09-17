@@ -27,3 +27,14 @@ exports.registerValidator = [
 
 
 ];
+
+exports.loginValidation = [
+    body('username')
+    .notEmpty().withMessage('Username cannot be empty')
+    .trim()
+    .escape(),
+    
+    body('password')
+    .notEmpty().withMessage('Password cannot be empty')
+    .trim()
+]
