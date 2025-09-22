@@ -5,6 +5,7 @@ const { registerValidator } = require('../validator/User.validator');
 const {loginValidation} = require('../validator/User.validator');
 const { validationResult } = require('express-validator');
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 //html file render
 router.get('/register',(req,res)=>{
@@ -17,7 +18,7 @@ router.get('/login',(req,res)=>{
 
  
 //create data in database
-router.post('/register-data', registerValidator   ,async(req,res)=>{
+router.post('/user/register-data', registerValidator   ,async(req,res)=>{
 
     const errors = validationResult(req);
     if(!errors.isEmpty()){
@@ -54,8 +55,15 @@ router.post('/login-data', loginValidation, async(req,res)=>{
        if(!isMatch){
         return res.status(400).json({errors:[{msg: 'Invalid password'}]})
        }
+       //generate jwt token
+       const token = jwt.sign({
+        userId: user._id,
+        email: user.email,
         
-    res.render('Dashboard.ejs', {username: user.name});
+       },process.env.JWT_SECRET,)
+       res.cookie('token',token)
+       console.log(token); 
+    res.render('Dashboard.ejs', {username: user.name} ); 
     console.log(req.body);
 })
 
